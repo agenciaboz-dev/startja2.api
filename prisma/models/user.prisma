@@ -1,0 +1,26 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id              String      @id
+    cpf             String      @unique
+    email           String      @unique
+    created_at      String
+    password        String
+    name            String
+    phone           String      
+
+    profilePic      String?     @db.Text
+    
+    expoPushToken   String      @db.Text    @default("[]")
+
+    address_id      Int         @unique
+    address         Address     @relation(fields: [address_id], references: [id], onDelete: Restrict)
+}
+
+model Address {
+    id          Int         @id @default(autoincrement())
+    user        User?
+}

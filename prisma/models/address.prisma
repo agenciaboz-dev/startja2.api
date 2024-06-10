@@ -1,0 +1,10 @@
+model Address {
+    id          Int         @id @default(autoincrement())
+    cep         String
+    uf          String
+    city        String
+    number      String
+    district    String
+    street      String
+    complement  String?
+}
