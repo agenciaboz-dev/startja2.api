@@ -6,33 +6,60 @@ import { saveFile } from "../tools/saveFile"
 import { handlePrismaError } from "../prisma/errors"
 import { Notification } from "./Notification"
 import { uid } from "uid"
-import { Address, AddressForm } from "./Address"
+import { Media } from "./Media"
+import { ResaleUser, resaleuser_include } from "./ResaleUser"
+import { Resale, resale_include } from "./Resale"
+import { CustomerUser, customer_user_include } from "./CustomerUser"
+import { Customer, customer_include } from "./Customer"
 
 export const user_include = Prisma.validator<Prisma.UserInclude>()({
     notifications: true,
-    address: true
+    profilePic: true,
+    resales: { include: resaleuser_include },
+    resalesManager: { include: resale_include },
+    customers: { include: customer_user_include },
+    customersManager: { include: customer_include },
 })
 export type UserPrisma = Prisma.UserGetPayload<{ include: typeof user_include }>
 
-export type UserForm = Omit<WithoutFunctions<User>, "id" | "profilePic" | "created_at" | "notifications" | 'address'> & {
-    profilePic: FileUpload | null
-    address: AddressForm
+export type UserForm = Omit<
+    WithoutFunctions<User>,
+    | "id"
+    | "profilePic"
+    | "created_at"
+    | "notifications"
+    | "expoPushToken"
+    | "admin"
+    | "active"
+    | "resalesManager"
+    | "resales"
+    | "customersManager"
+    | "customers"
+> & {
+    profilePic?: FileUpload | null
+    admin?: boolean
+    active?: boolean
 }
 export type PartialUser = Partial<User> & { id: string }
 export class User {
     id: string
-    cpf: string
     email: string
     created_at: string
     password: string
     name: string
     phone: string
 
-    profilePic: string | null
-
     expoPushToken: string[]
+
+    admin: boolean
+    active: boolean
+
     notifications: Notification[]
-    address: Address
+    profilePic: Media | null
+    resalesManager: Resale[]
+    resales: ResaleUser[]
+    customersManager: Customer[]
+    customers: CustomerUser[]
 
     constructor(id: string, user_prisma?: UserPrisma) {
         user_prisma ? this.load(user_prisma) : (this.id = id)
@@ -59,16 +86,15 @@ export class User {
                 ...form,
                 id: uid(),
                 created_at: new Date().getTime().toString(),
-                address: {create: form.address},
-                profilePic: undefined,
-                expoPushToken: undefined,
+                profilePic: form.profilePic ? { create: { id: uid(), name: form.profilePic.name, type: "image", url: "" } } : undefined,
             },
             include: user_include,
         })
 
         const user = new User("", data)
+
         if (form.profilePic) {
-            await user.updateImage(form.profilePic)
+            await user.update({ profilePic: { ...user.profilePic!, url: user.updateImage(form.profilePic) } })
         }
 
         return user
@@ -77,7 +103,7 @@ export class User {
     static async login(data: LoginForm) {
         const user_prisma = await prisma.user.findFirst({
             where: {
-                OR: [{ email: data.login }, { cpf: data.login }],
+                OR: [{ email: data.login }],
                 password: data.password,
             },
             include: user_include,
@@ -100,18 +126,20 @@ export class User {
 
     load(data: UserPrisma) {
         this.id = data.id
-        this.cpf = data.cpf
         this.email = data.email
         this.name = data.name
         this.password = data.password
         this.phone = data.phone
         this.created_at = data.created_at
 
-        this.profilePic = data.profilePic
+        this.profilePic = data.profilePic ? new Media(data.profilePic) : null
 
         this.expoPushToken = JSON.parse(data.expoPushToken)
         this.notifications = data.notifications.map((item) => new Notification(item))
-        this.address = new Address(data.address)
+        this.resalesManager = data.resalesManager.map((item) => new Resale("", item))
+        this.resales = data.resales.map((item) => new ResaleUser("", item))
+        this.customersManager = data.customersManager.map((item) => new Customer("", item))
+        this.customers = data.customers.map((item) => new CustomerUser("", item))
     }
 
     async update(data: Partial<User>) {
@@ -121,9 +149,13 @@ export class User {
                 where: { id: this.id },
                 data: {
                     ...data,
-                    address: data.address ? {update: data.address} : undefined,
                     expoPushToken: data.expoPushToken ? JSON.stringify(data.expoPushToken) : undefined,
+                    profilePic: data.profilePic ? { update: { url: this.updateImage(data.profilePic), name: data.profilePic.name } } : undefined,
+                    customers: undefined,
+                    customersManager: undefined,
                     notifications: undefined,
+                    resales: undefined,
+                    resalesManager: undefined,
                 },
                 include: user_include,
             })
@@ -135,12 +167,8 @@ export class User {
         }
     }
 
-    async updateImage(data: FileUpload) {
-        try {
-            const url = saveFile(`/users/${this.id}/profilePic`, data)
-            await this.update({ profilePic: url })
-        } catch (error) {
-            console.log(error)
-        }
+    updateImage(data: FileUpload) {
+        const url = saveFile(`/users/${this.id}/profilePic`, data)
+        return url
     }
 }

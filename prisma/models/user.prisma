@@ -5,22 +5,21 @@ datasource db {
 
 model User {
     id              String      @id
-    cpf             String      @unique
     email           String      @unique
-    created_at      String
-    password        String
     name            String
     phone           String      
+    password        String
+    admin           Boolean     @default(false)
+    active          Boolean     @default(false)
 
-    profilePic      String?     @db.Text
-    
+    created_at      String
     expoPushToken   String      @db.Text    @default("[]")
 
-    address_id      Int         @unique
-    address         Address     @relation(fields: [address_id], references: [id], onDelete: Restrict)
+    profilePicId    String?     @unique
+    profilePic      Media?      @relation(fields: [profilePicId], references: [id], onDelete: SetNull)
 }
 
-model Address {
-    id          Int         @id @default(autoincrement())
+model Media {
+    id          String          @id
     user        User?
 }

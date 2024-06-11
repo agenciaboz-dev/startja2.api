@@ -1,0 +1,125 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+enum FunruralType {
+    paycheck
+    production_value
+}
+
+model Customer {
+    id                          String          @id
+    document                    String
+    name                        String
+    business_name               String
+    email                       String
+    phone                       String
+    municipal_registration      String
+    state_registration          String
+
+    exempted                    Boolean
+    discriminate_taxes          Boolean
+    send_destinatary_mail       Boolean
+    enable_nfe                  Boolean
+    enable_nfce                 Boolean
+
+    next_nfe_number             String
+    nfe_series                  String
+
+    funrural                    FunruralType
+
+    certificate_file            String          @db.Text
+    certificate_password        String          @db.Text
+
+    profilePicId                String?         @unique
+    profilePic                  Media?          @relation(fields: [profilePicId], references: [id], onDelete: SetNull)
+
+
+    address_id                  Int             @unique
+    address                     Address         @relation(fields: [address_id], references: [id], onDelete: Cascade)
+
+    permissionsId               Int
+    permissions                 CustomerPermissions @relation(fields: [permissionsId], references: [id], onDelete: Cascade)
+
+    managerId       String
+    manager         User                @relation(fields: [managerId], references: [id], onDelete: Cascade)
+
+    users           CustomerUser[]
+
+}
+
+model Media {
+    id          String          @id
+    customer    Customer?
+}
+
+model Address {
+    id          Int         @id @default(autoincrement())
+    customer    Customer?
+}
+
+model NfePermissions {
+    id                          Int         @id @default(autoincrement())
+    generalPermissions          CustomerPermissions?
+
+    emit                Boolean
+    edit                Boolean
+    cancel              Boolean
+    delete              Boolean
+    transmit            Boolean
+    clone               Boolean
+    adjust              Boolean
+    renderNumber        Boolean
+    manifest            Boolean
+    correctionLetter    Boolean
+    share               Boolean
+    download            Boolean
+    history             Boolean
+    save_view           Boolean
+}
+
+
+model CustomerPermissions {
+    id                          Int             @id @default(autoincrement())
+
+    enterprises                 Int
+    products                    Int
+    natures                     Int
+    properties                  Int
+    bank_accounts               Int
+
+    edit_permissions            Boolean
+    invite_user                 Boolean
+    options                     Boolean
+
+    report_nfe                  Int
+    sold_products               Int
+    chart_accounts              Int
+
+    nfePermissionsId            Int             @unique
+    nfePermissions              NfePermissions  @relation(fields: [nfePermissionsId], references: [id], onDelete: Cascade)
+
+    customers                   Customer[]
+    customerUsers               CustomerUser[]
+
+}
+
+model User {
+    id                  String          @id
+    customersManager    Customer[]
+    customers           CustomerUser[]
+}
+
+model CustomerUser {
+    id              String                  @id
+
+    user_id         String
+    user            User                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    
+    customer_id       String
+    customer          Customer                  @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+
+    permissions_id  Int
+    permissions     CustomerPermissions       @relation(fields: [permissions_id], references: [id], onDelete: Cascade)
+}

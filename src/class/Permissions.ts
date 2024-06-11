@@ -1,42 +1,98 @@
 import { Prisma } from "@prisma/client"
 import { prisma } from "../prisma"
-import { WithoutFunctions } from "./helpers"
 
-export type PermissionsPrisma = Prisma.PermissionsGetPayload<{}>
-export type PermissionsForm = Omit<WithoutFunctions<Permissions>, "id">
-export type PartialPermissions = Partial<Permissions> & { id: string }
+export const customer_permissions_include = Prisma.validator<Prisma.CustomerPermissionsInclude>()({
+    nfePermissions: true,
+})
 
-export class Permissions {
+type CustomerPermissionsPrisma = Prisma.CustomerPermissionsGetPayload<{ include: typeof customer_permissions_include }>
+type NfePermissionsPrisma = Prisma.NfePermissionsGetPayload<{}>
+type ResalePermissionsPrisma = Prisma.ResalePermissionsGetPayload<{}>
+
+export class ResalePermissions {
     id: number
-    role_id: number | null
-    panelTab: boolean
-    creatorTab: boolean
-    searchTab: boolean
-    favoritesTab: boolean
-    configTab: boolean
+    customers: number
+    products: number
+    natures: number
+    editPermissions: boolean
+    inviteUser: boolean
 
-    static async createDefault() {
-        const data = await prisma.permissions.create({
-            data: {
-                configTab: true,
-                creatorTab: true,
-                favoritesTab: true,
-                panelTab: true,
-                searchTab: true,
-            },
-        })
-
-        const permissions = new Permissions(data)
-        return permissions
-    }
-
-    constructor(data: PermissionsPrisma) {
+    constructor(data: ResalePermissionsPrisma) {
         this.id = data.id
-        this.configTab = data.configTab
-        this.creatorTab = data.creatorTab
-        this.favoritesTab = data.favoritesTab
-        this.panelTab = data.panelTab
-        this.role_id = data.role_id
-        this.searchTab = data.searchTab
+        this.customers = data.customers
+        this.products = data.products
+        this.natures = data.natures
+        this.editPermissions = data.editPermissions
+        this.inviteUser = data.inviteUser
+    }
+}
+
+export class NfePermissions {
+    id: number
+    emit: boolean
+    edit: boolean
+    cancel: boolean
+    delete: boolean
+    transmit: boolean
+    clone: boolean
+    adjust: boolean
+    renderNumber: boolean
+    manifest: boolean
+    correctionLetter: boolean
+    share: boolean
+    download: boolean
+    history: boolean
+    save_view: boolean
+
+    constructor(data: NfePermissionsPrisma) {
+        this.id = data.id
+        this.emit = data.emit
+        this.edit = data.edit
+        this.cancel = data.cancel
+        this.delete = data.delete
+        this.transmit = data.transmit
+        this.clone = data.clone
+        this.adjust = data.adjust
+        this.renderNumber = data.renderNumber
+        this.manifest = data.manifest
+        this.correctionLetter = data.correctionLetter
+        this.share = data.share
+        this.download = data.download
+        this.history = data.history
+        this.save_view = data.save_view
+    }
+}
+
+export class CustomerPermissions {
+    id: number
+    enterprises: number
+    products: number
+    natures: number
+    properties: number
+    bank_accounts: number
+    edit_permissions: boolean
+    invite_user: boolean
+    options: boolean
+    report_nfe: number
+    sold_products: number
+    chart_accounts: number
+    nfePermissionsId: number
+    nfePermissions: NfePermissions
+
+    constructor(data: CustomerPermissionsPrisma) {
+        this.id = data.id
+        this.enterprises = data.enterprises
+        this.products = data.products
+        this.natures = data.natures
+        this.properties = data.properties
+        this.bank_accounts = data.bank_accounts
+        this.edit_permissions = data.edit_permissions
+        this.invite_user = data.invite_user
+        this.options = data.options
+        this.report_nfe = data.report_nfe
+        this.sold_products = data.sold_products
+        this.chart_accounts = data.chart_accounts
+        this.nfePermissionsId = data.nfePermissionsId
+        this.nfePermissions = data.nfePermissions
     }
 }

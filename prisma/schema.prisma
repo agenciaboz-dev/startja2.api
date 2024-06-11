@@ -9,24 +9,8 @@ generator client {
   previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
-model User {
-  id            String         @id
-  cpf           String         @unique
-  email         String         @unique
-  created_at    String
-  password      String
-  name          String
-  phone         String
-  profilePic    String?        @db.Text
-  expoPushToken String         @default("[]") @db.Text
-  address_id    Int            @unique
-  address       Address        @relation(name: "AddressToUser", fields: [address_id], references: [id], onDelete: Restrict)
-  notifications Notification[] @relation(name: "NotificationToUser")
-}
-
 model Address {
-  id         Int     @id @default(autoincrement())
-  user       User?   @relation(name: "AddressToUser")
+  id         Int       @id @default(autoincrement())
   cep        String
   uf         String
   city       String
@@ -34,6 +18,114 @@ model Address {
   district   String
   street     String
   complement String?
+  customer   Customer? @relation(name: "AddressToCustomer")
+}
+
+model Customer {
+  id                     String              @id
+  document               String
+  name                   String
+  business_name          String
+  email                  String
+  phone                  String
+  municipal_registration String
+  state_registration     String
+  exempted               Boolean
+  discriminate_taxes     Boolean
+  send_destinatary_mail  Boolean
+  enable_nfe             Boolean
+  enable_nfce            Boolean
+  next_nfe_number        String
+  nfe_series             String
+  funrural               FunruralType
+  certificate_file       String              @db.Text
+  certificate_password   String              @db.Text
+  profilePicId           String?             @unique
+  profilePic             Media?              @relation(name: "CustomerToMedia", fields: [profilePicId], references: [id], onDelete: SetNull)
+  address_id             Int                 @unique
+  address                Address             @relation(name: "AddressToCustomer", fields: [address_id], references: [id], onDelete: Cascade)
+  permissionsId          Int
+  permissions            CustomerPermissions @relation(name: "CustomerToCustomerPermissions", fields: [permissionsId], references: [id], onDelete: Cascade)
+  managerId              String
+  manager                User                @relation(name: "CustomerToUser", fields: [managerId], references: [id], onDelete: Cascade)
+  users                  CustomerUser[]      @relation(name: "CustomerToCustomerUser")
+}
+
+model Media {
+  id       String    @id
+  customer Customer? @relation(name: "CustomerToMedia")
+  url      String    @db.Text
+  name     String
+  type     MediaType
+  resale   Resale?   @relation(name: "MediaToResale")
+  user     User?     @relation(name: "MediaToUser")
+}
+
+model NfePermissions {
+  id                 Int                  @id @default(autoincrement())
+  generalPermissions CustomerPermissions? @relation(name: "CustomerPermissionsToNfePermissions")
+  emit               Boolean
+  edit               Boolean
+  cancel             Boolean
+  delete             Boolean
+  transmit           Boolean
+  clone              Boolean
+  adjust             Boolean
+  renderNumber       Boolean
+  manifest           Boolean
+  correctionLetter   Boolean
+  share              Boolean
+  download           Boolean
+  history            Boolean
+  save_view          Boolean
+}
+
+model CustomerPermissions {
+  id               Int            @id @default(autoincrement())
+  enterprises      Int
+  products         Int
+  natures          Int
+  properties       Int
+  bank_accounts    Int
+  edit_permissions Boolean
+  invite_user      Boolean
+  options          Boolean
+  report_nfe       Int
+  sold_products    Int
+  chart_accounts   Int
+  nfePermissionsId Int            @unique
+  nfePermissions   NfePermissions @relation(name: "CustomerPermissionsToNfePermissions", fields: [nfePermissionsId], references: [id], onDelete: Cascade)
+  customers        Customer[]     @relation(name: "CustomerToCustomerPermissions")
+  customerUsers    CustomerUser[] @relation(name: "CustomerPermissionsToCustomerUser")
+}
+
+model User {
+  id               String         @id
+  customersManager Customer[]     @relation(name: "CustomerToUser")
+  customers        CustomerUser[] @relation(name: "CustomerUserToUser")
+  notifications    Notification[] @relation(name: "NotificationToUser")
+  resalesManager   Resale[]       @relation(name: "ResaleToUser")
+  resales          ResaleUser[]   @relation(name: "ResaleUserToUser")
+  email            String         @unique
+  name             String
+  phone            String
+  password         String
+  admin            Boolean        @default(false)
+  active           Boolean        @default(false)
+  created_at       String
+  expoPushToken    String         @default("[]") @db.Text
+  profilePicId     String?        @unique
+  profilePic       Media?         @relation(name: "MediaToUser", fields: [profilePicId], references: [id], onDelete: SetNull)
+}
+
+model CustomerUser {
+  id             String              @id
+  user_id        String
+  user           User                @relation(name: "CustomerUserToUser", fields: [user_id], references: [id], onDelete: Cascade)
+  customer_id    String
+  customer       Customer            @relation(name: "CustomerToCustomerUser", fields: [customer_id], references: [id], onDelete: Cascade)
+  permissions_id Int
+  permissions    CustomerPermissions @relation(name: "CustomerPermissionsToCustomerUser", fields: [permissions_id], references: [id], onDelete: Cascade)
 }
 
 model Notification {
@@ -49,4 +141,47 @@ model Notification {
   user_id       String
   user          User    @relation(name: "NotificationToUser", fields: [user_id], references: [id], onDelete: Cascade)
   expoPushToken String  @db.Text
+}
+
+model Resale {
+  id            String            @id
+  name          String
+  profilePicId  String?           @unique
+  profilePic    Media?            @relation(name: "MediaToResale", fields: [profilePicId], references: [id], onDelete: SetNull)
+  managerId     String
+  manager       User              @relation(name: "ResaleToUser", fields: [managerId], references: [id], onDelete: Cascade)
+  permissionsId Int
+  permissions   ResalePermissions @relation(name: "ResaleToResalePermissions", fields: [permissionsId], references: [id], onDelete: Cascade)
+  users         ResaleUser[]      @relation(name: "ResaleToResaleUser")
+}
+
+model ResalePermissions {
+  id              Int          @id @default(autoincrement())
+  customers       Int
+  products        Int
+  natures         Int
+  editPermissions Boolean
+  inviteUser      Boolean
+  resales         Resale[]     @relation(name: "ResaleToResalePermissions")
+  resaleUsers     ResaleUser[] @relation(name: "ResalePermissionsToResaleUser")
+}
+
+model ResaleUser {
+  id             String            @id
+  user_id        String
+  user           User              @relation(name: "ResaleUserToUser", fields: [user_id], references: [id], onDelete: Cascade)
+  resale_id      String
+  resale         Resale            @relation(name: "ResaleToResaleUser", fields: [resale_id], references: [id], onDelete: Cascade)
+  permissions_id Int
+  permissions    ResalePermissions @relation(name: "ResalePermissionsToResaleUser", fields: [permissions_id], references: [id], onDelete: Cascade)
+}
+
+enum FunruralType {
+  paycheck
+  production_value
+}
+
+enum MediaType {
+  image
+  document
 }

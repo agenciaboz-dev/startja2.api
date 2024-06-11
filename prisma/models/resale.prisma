@@ -1,0 +1,57 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model Resale {
+    id              String              @id
+    name            String
+    profilePicId    String?             @unique
+    profilePic      Media?              @relation(fields: [profilePicId], references: [id], onDelete: SetNull)
+
+    managerId       String
+    manager         User                @relation(fields: [managerId], references: [id], onDelete: Cascade)
+
+    permissionsId   Int
+    permissions     ResalePermissions   @relation(fields: [permissionsId], references: [id], onDelete: Cascade)
+
+    users           ResaleUser[]
+}
+
+model User {
+    id              String      @id
+    resalesManager  Resale[]
+    resales         ResaleUser[]
+}
+
+model Media {
+    id          String          @id
+    resale      Resale?
+}
+
+model ResalePermissions {
+    id              Int             @id @default(autoincrement())
+
+    customers       Int
+    products        Int
+    natures         Int
+    
+    editPermissions Boolean
+    inviteUser      Boolean
+
+    resales         Resale[]
+    resaleUsers     ResaleUser[]
+}
+
+model ResaleUser {
+    id              String                  @id
+
+    user_id         String
+    user            User                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    
+    resale_id       String
+    resale          Resale                  @relation(fields: [resale_id], references: [id], onDelete: Cascade)
+
+    permissions_id  Int
+    permissions     ResalePermissions       @relation(fields: [permissions_id], references: [id], onDelete: Cascade)
+}

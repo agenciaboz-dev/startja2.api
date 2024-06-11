@@ -3,9 +3,12 @@
         {
             "input": [
                 "prisma/base.prisma",
-                "prisma/models/user.prisma",
+                "prisma/models/address.prisma",
+                "prisma/models/customer.prisma",
+                "prisma/models/media.prisma",
                 "prisma/models/notification.prisma",
-                "prisma/models/address.prisma"
+                "prisma/models/resale.prisma",
+                "prisma/models/user.prisma"
             ],
             "output": "prisma/schema.prisma"
         }

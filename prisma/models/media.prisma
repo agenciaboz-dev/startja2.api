@@ -1,0 +1,16 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+enum MediaType {
+    image
+    document
+}
+
+model Media {
+    id          String          @id
+    url         String          @db.Text
+    name        String
+    type        MediaType
+}
