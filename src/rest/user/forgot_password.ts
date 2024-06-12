@@ -4,6 +4,7 @@ import { prisma } from "../../prisma"
 import { sendMail } from "../../tools/mail"
 import { website_url } from "../../env"
 import templates from "../../templates"
+import { Recovery } from "../../class/Recovery"
 
 const router = express.Router()
 
@@ -17,12 +18,14 @@ router.post("/", async (request: Request, response: Response) => {
         })
         if (user_prisma) {
             const user = new User("", user_prisma)
-            const url = `${website_url}/redefinir-senha/${user.id}/${new Date().getTime()}`
+            const recovery = await Recovery.new(user.email)
+            const url = `${website_url}/forgot-password/verification/${recovery.code.join("")}`
             console.log(url)
-            sendMail([user.email], "Loucas & Lisas - Redefinir senha", url, templates.email.recover_password(url))
+            sendMail([user.email], "Start Já - Redefinir senha", url, `<p>codigo: ${recovery.code.join("")}</p><p>url: ${url}</p>`)
+            response.status(200).send()
+        } else {
+            response.status(400).send("nenhum usuário encontrado")
         }
-
-        response.status(200).send()
     } catch (error) {
         console.log(error)
         response.status(500).send(error)

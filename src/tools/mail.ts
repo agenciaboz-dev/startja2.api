@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendMail = async (destination: string[], subject: string, text?: string, html?: string, attachments?: Mail.Attachment[]) => {
     const mailOptions: Mail.Options = {
-        from: "Loucas e Lisas <ead@loucaselisas.com.br>",
+        from: "Start Já <contato@startja.com.br>",
         to: destination,
         subject,
         html,

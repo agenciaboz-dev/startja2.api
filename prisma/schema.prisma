@@ -176,6 +176,13 @@ model ResaleUser {
   permissions    ResalePermissions @relation(name: "ResalePermissionsToResaleUser", fields: [permissions_id], references: [id], onDelete: Cascade)
 }
 
+model Recovery {
+  id       Int    @id @default(autoincrement())
+  target   String
+  code     String
+  datetime String
+}
+
 enum FunruralType {
   paycheck
   production_value

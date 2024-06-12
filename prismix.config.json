@@ -8,7 +8,8 @@
                 "prisma/models/media.prisma",
                 "prisma/models/notification.prisma",
                 "prisma/models/resale.prisma",
-                "prisma/models/user.prisma"
+                "prisma/models/user.prisma",
+                "prisma/models/recovery.prisma"
             ],
             "output": "prisma/schema.prisma"
         }
