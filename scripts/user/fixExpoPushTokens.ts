@@ -2,7 +2,7 @@ import { prisma } from "../../src/prisma"
 
 const fixToken = async (id: string, token: string | null) => {
     const result = await prisma.user.update({ where: { id }, data: { expoPushToken: token ? JSON.stringify([token]) : JSON.stringify([]) } })
-    console.log(`fixed ${result.username} token`)
+    console.log(`fixed ${result.name} token`)
 }
 
 export const fixExpoPushTokens = async () => {
@@ -11,7 +11,7 @@ export const fixExpoPushTokens = async () => {
         try {
             const token = JSON.parse(user.expoPushToken || "null") || []
             if (token) {
-                console.log(`user ${user.username} token is correcy`)
+                console.log(`user ${user.name} token is correct`)
             } else {
                 fixToken(user.id, user.expoPushToken)
             }

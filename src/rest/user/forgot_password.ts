@@ -12,7 +12,7 @@ router.post("/", async (request: Request, response: Response) => {
 
     try {
         const user_prisma = await prisma.user.findFirst({
-            where: { OR: [{ email: data.login }, { username: data.login }, { cpf: data.login }] },
+            where: { OR: [{ email: data.login }] },
             include: user_include,
         })
         if (user_prisma) {
