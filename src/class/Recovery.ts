@@ -20,7 +20,7 @@ export class Recovery {
         const code = (Math.random() * 100000)
             .toFixed(0)
             .split("")
-            .map((char) => Number(char))
+            .map((char) => (char ? Number(char) : 0))
         const data = await prisma.recovery.create({
             data: { code: JSON.stringify(code), datetime: new Date().getTime().toString(), target },
         })
