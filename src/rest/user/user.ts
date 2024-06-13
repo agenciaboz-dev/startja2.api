@@ -4,6 +4,7 @@ import { prisma } from "../../prisma"
 import forgot_password from "./forgot_password"
 import login from './login'
 import { FileUpload } from "../../class/helpers"
+import { handlePrismaError } from "../../prisma/errors"
 
 const router = express.Router()
 
@@ -25,10 +26,14 @@ router.get("/", async (request: Request, response: Response) => {
 
 router.post("/", async (request: Request, response: Response) => {
     const data = request.body as UserForm
-    console.log(data)
-    const user = await User.signup(data)
-    console.log(user)
-    response.status(user instanceof User ? 200 : 400).json(user)
+    try {
+        const user = await User.signup(data)
+        response.status(user instanceof User ? 200 : 400).json(user)
+    } catch (error) {
+        const message = handlePrismaError(error)
+        console.log(message)
+        response.json({ error: message })
+    }
 })
 
 router.get("/all", async (request: Request, response: Response) => {

@@ -1,10 +1,10 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 
 export const user_errors = [
-    { key: "username", message: "nome de usuário já cadastrado" },
-    { key: "email", message: "este e-mail já está cadastrado" },
-    { key: "cpf", message: "cpf já cadastrado" },
-    { key: "google_id", message: "conta google já cadastrada" },
+    { key: "username", message: "Nome de usuário já cadastrado" },
+    { key: "email", message: "Este e-mail já está cadastrado" },
+    { key: "cpf", message: "Cpf já cadastrado" },
+    { key: "google_id", message: "Conta google já cadastrada" },
     { key: "user_id", preffix: "Creator", message: "usuário já é um criador" },
 ]
 
@@ -24,7 +24,7 @@ export const handlePrismaError = (error: unknown) => {
                 }
             })?.message
             if (message) {
-                return message
+                return { message, key }
             } else {
                 console.log("error not formatted, update this handler including a message for it")
                 console.log(target)
