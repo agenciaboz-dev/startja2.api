@@ -27,4 +27,19 @@ export class Recovery {
 
         return new Recovery(data)
     }
+
+    static async verifyCode(target: string, code: number[]) {
+        const data = await prisma.recovery.findFirst({ where: { AND: [{ target, code: JSON.stringify(code) }] } })
+        if (data) {
+            const recovery = new Recovery(data)
+            return recovery
+        }
+
+        return null
+    }
+
+    static async finish(target: string) {
+        const deleted = await prisma.recovery.deleteMany({ where: { target } })
+        return deleted
+    }
 }

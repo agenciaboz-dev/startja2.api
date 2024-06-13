@@ -32,4 +32,39 @@ router.post("/", async (request: Request, response: Response) => {
     }
 })
 
+router.post("/verify-code", async (request: Request, response: Response) => {
+    const data = request.body as { code: number[]; target: string }
+
+    try {
+        const recovery = await Recovery.verifyCode(data.target, data.code)
+        if (recovery) {
+            const expired = new Date().getTime() - Number(recovery.datetime) >= 1000 * 60 * 15
+            if (expired) {
+                response.json(null)
+            } else {
+                response.json(recovery)
+            }
+        } else {
+            response.json(null)
+        }
+    } catch (error) {
+        console.log(error)
+        response.status(500).send(error)
+    }
+})
+
+router.post("/reset-password", async (request: Request, response: Response) => {
+    const data = request.body as { target: string; password: string }
+
+    try {
+        const user = await User.findByEmail(data.target)
+        await user.update({ password: data.password })
+        await Recovery.finish(data.target)
+        response.json(user)
+    } catch (error) {
+        console.log(error)
+        response.status(500).send(error)
+    }
+})
+
 export default router

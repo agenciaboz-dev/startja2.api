@@ -124,6 +124,12 @@ export class User {
         return new User("", data)
     }
 
+    static async findByEmail(email: string) {
+        const data = await prisma.user.findUnique({ where: { email }, include: user_include })
+        if (!data) throw "usuário não encontrado"
+        return new User("", data)
+    }
+
     load(data: UserPrisma) {
         this.id = data.id
         this.email = data.email
