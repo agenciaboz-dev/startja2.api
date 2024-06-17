@@ -1,8 +1,8 @@
-export const recover_password = (url: string) => `<!doctype html>
+export const inactivated_account = (url: string) => `<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
-  <title> Código de Segurança para Redefinição de Senha </title>
+  <title> Sua Conta no StartJá Foi Inativada </title>
   <!--[if !mso]><!-->
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <!--<![endif]-->
@@ -244,15 +244,12 @@ export const recover_password = (url: string) => `<!doctype html>
                     <tr>
                       <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                         <div style="font-family:Lato, Arial;font-size:15px;line-height:30px;text-align:left;color:#4E5058;">
-                          <p>Olá ${user.name},</p>
-                          <p>Você solicitou a redefinição da sua senha no StartJá. Use o código de segurança abaixo para prosseguir com a alteração da sua senha. Este código é válido por 30 minutos.</p>
-                          <h3 style="color:#00965E;
-                     font-weight:900;
-                     text-align: center;
-                     font-size: 50px;
-                     letter-spacing:5px;">${app.token}</h1>
-                            <p>Se você não solicitou a redefinição de senha, por favor, desconsidere este e-mail e garanta que sua conta está segura.</p>
-                            <p>Agradecemos por usar StartJá!</p>
+                          <p>Olá <span style="color:#00965E;">${user.name}</span>,</p>
+                          <p>Estamos entrando em contato para informar que seu acesso na revenda <span style="color:#00965E;">${nome.revenda}</span> foi inativado.</p>
+                          <p>Se você acredita que isso é um erro ou tem alguma dúvida sobre o motivo da desativação, por favor, entre em contato conosco imediatamente para que possamos esclarecer e resolver qualquer problema.</ p>
+                          <p>Se precisar de mais alguma informação ou tiver alguma dúvida, por favor, não hesite em nos contatar.</span></p>
+                          <p>Agradecemos sua compreensão e estamos à disposição para ajudar.</p>
+                          <p>Atenciosamente,<br>Equipe StartJá.</p>
                         </div>
                       </td>
                     </tr>
