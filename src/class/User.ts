@@ -40,6 +40,7 @@ export type UserForm = Omit<
     admin?: boolean
     active?: boolean
 }
+
 export type PartialUser = Partial<User> & { id: string }
 export class User {
     id: string
@@ -137,6 +138,7 @@ export class User {
         this.password = data.password
         this.phone = data.phone
         this.created_at = data.created_at
+        this.admin = data.admin
 
         this.profilePic = data.profilePic ? new Media(data.profilePic) : null
 

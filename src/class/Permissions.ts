@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client"
 import { prisma } from "../prisma"
+import { WithoutFunctions } from "./helpers"
 
 export const customer_permissions_include = Prisma.validator<Prisma.CustomerPermissionsInclude>()({
     nfePermissions: true,
@@ -8,6 +9,8 @@ export const customer_permissions_include = Prisma.validator<Prisma.CustomerPerm
 type CustomerPermissionsPrisma = Prisma.CustomerPermissionsGetPayload<{ include: typeof customer_permissions_include }>
 type NfePermissionsPrisma = Prisma.NfePermissionsGetPayload<{}>
 type ResalePermissionsPrisma = Prisma.ResalePermissionsGetPayload<{}>
+
+export type ResalePermissionsForm = Omit<WithoutFunctions<ResalePermissions>, "id">
 
 export class ResalePermissions {
     id: number

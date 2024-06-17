@@ -1,7 +1,9 @@
 import { Prisma } from "@prisma/client"
 import { Media } from "./Media"
-import { ResalePermissions } from "./Permissions"
+import { ResalePermissions, ResalePermissionsForm } from "./Permissions"
 import { prisma } from "../prisma"
+import { FileUpload, WithoutFunctions } from "./helpers"
+import { UserForm } from "./User"
 
 export const resale_include = Prisma.validator<Prisma.ResaleInclude>()({
     permissions: true,
@@ -9,6 +11,12 @@ export const resale_include = Prisma.validator<Prisma.ResaleInclude>()({
 })
 
 type ResalePrima = Prisma.ResaleGetPayload<{ include: typeof resale_include }>
+
+export type ResaleForm = Omit<WithoutFunctions<Resale>, "id" | "manager_id" | "permissions" | "profilePic"> & {
+    profilePic?: FileUpload
+    manager: UserForm
+    permissions: ResalePermissionsForm
+}
 
 export class Resale {
     id: string
@@ -23,6 +31,12 @@ export class Resale {
         } else {
             this.id = id
         }
+    }
+
+    static async list() {
+        const data = await prisma.resale.findMany({ include: resale_include })
+        const resales = data.map((item) => new Resale("", item))
+        return resales
     }
 
     load(data: ResalePrima) {
