@@ -1,4 +1,7 @@
-export const adm_resale_invitation = (url: string) => `<!doctype html>
+import { User } from "../../class"
+import { ResaleForm } from "../../class/Resale"
+
+export const adm_resale_invitation = (url: string, user: User, resale_name: string) => `<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
@@ -245,10 +248,10 @@ export const adm_resale_invitation = (url: string) => `<!doctype html>
                       <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                         <div style="font-family:Lato, Arial;font-size:15px;line-height:30px;text-align:left;color:#4E5058;">
                           <p>Olá <span style="color:#00965E;">${user.name}</span>,</p>
-                          <p>Você foi convidado para administrar a revenda <span style="color:#00965E;">${nome.revenda}</span> no nosso sistema StartJá.</p>
+                          <p>Você foi convidado para administrar a revenda <span style="color:#00965E;">${resale_name}</span> no nosso sistema StartJá.</p>
                           <p>Para acessar o sistema, por favor, siga as instruções abaixo:</ p>
                           <ol>
-                            <li>Acesse o link: <span style="color:#00965E;">${app.authlink}</span>
+                            <li>Acesse o link: <span style="color:#00965E;">${url}</span>
                             </li>
                             <li>Ao acessar o link pela primeira vez, você será solicitado(a) a criar sua senha para garantir a segurança da sua conta. </li>
                           </ol>
@@ -365,7 +368,7 @@ export const adm_resale_invitation = (url: string) => `<!doctype html>
                       <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                         <div style="font-family:Lato, Arial;font-size:12px;line-height:8px;text-align:center;color:rgba(78, 80, 88, 0.3);">
                           <p>Esse é um e-mail automático gerado pelo sistema da Start Já.</p>
-                          <p>${app.version} © 2024 Start Já | Todos os direitos reservados</p>
+                          <p>${"1.0.0"} © 2024 Start Já | Todos os direitos reservados</p>
                           <p>Designed and powered by BOZ</p>
                         </div>
                       </td>

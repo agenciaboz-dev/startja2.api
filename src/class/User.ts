@@ -11,6 +11,9 @@ import { ResaleUser, resaleuser_include } from "./ResaleUser"
 import { Resale, resale_include } from "./Resale"
 import { CustomerUser, customer_user_include } from "./CustomerUser"
 import { Customer, customer_include } from "./Customer"
+import { website_url } from "../env"
+import { sendMail } from "../tools/mail"
+import templates from "../templates"
 
 export const user_include = Prisma.validator<Prisma.UserInclude>()({
     notifications: true,
@@ -79,6 +82,19 @@ export class User {
         const data = await prisma.user.findMany({ include: user_include })
         const users = data.map((item) => new User("", item))
         return users
+    }
+
+    static async newResaleManager(form: UserForm, resale_name: string) {
+        const user = await User.signup(form)
+
+        const token = `${user.email}:${user.password}`
+        const encrypted = Buffer.from(token).toString("base64")
+
+        const invite_url = `${website_url}/login?token=${encrypted}`
+        console.log(invite_url)
+        sendMail([user.email], "Convite para administrar revenda", invite_url, templates.email.adm_resale_invitation(invite_url, user, resale_name))
+
+        return user
     }
 
     static async signup(form: UserForm) {
