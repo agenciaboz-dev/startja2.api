@@ -121,13 +121,13 @@ export class User {
 
     static async findById(id: string) {
         const data = await prisma.user.findUnique({ where: { id }, include: user_include })
-        if (!data) throw "usuário não encontrado"
+        if (!data) return null
         return new User("", data)
     }
 
     static async findByEmail(email: string) {
         const data = await prisma.user.findUnique({ where: { email }, include: user_include })
-        if (!data) throw "usuário não encontrado"
+        if (!data) return null
         return new User("", data)
     }
 

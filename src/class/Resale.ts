@@ -3,7 +3,9 @@ import { Media } from "./Media"
 import { ResalePermissions, ResalePermissionsForm } from "./Permissions"
 import { prisma } from "../prisma"
 import { FileUpload, WithoutFunctions } from "./helpers"
-import { UserForm } from "./User"
+import { User, UserForm } from "./User"
+import { uid } from "uid"
+import { saveFile } from "../tools/saveFile"
 
 export const resale_include = Prisma.validator<Prisma.ResaleInclude>()({
     permissions: true,
@@ -39,6 +41,28 @@ export class Resale {
         return resales
     }
 
+    static async new(form: ResaleForm) {
+        const manager = (await User.findByEmail(form.manager.email)) || (await User.signup(form.manager))
+        const permissions = await ResalePermissions.new(form.permissions)
+
+        const data = await prisma.resale.create({
+            data: {
+                id: uid(),
+                name: form.name,
+                managerId: manager.id,
+                permissionsId: permissions.id,
+            },
+            include: resale_include,
+        })
+
+        const resale = new Resale("", data)
+        if (form.profilePic) {
+            await resale.updateProfilePic(form.profilePic)
+        }
+
+        return resale
+    }
+
     load(data: ResalePrima) {
         this.id = data.id
         this.name = data.name
@@ -50,6 +74,19 @@ export class Resale {
     async init() {
         const data = await prisma.resale.findUnique({ where: { id: this.id }, include: resale_include })
         if (!data) throw "revenda não encontrada"
+        this.load(data)
+    }
+
+    async updateProfilePic(image: FileUpload) {
+        const url = saveFile(`/resales/${this.id}/`, image)
+        const data = await prisma.resale.update({
+            where: { id: this.id },
+            data: {
+                profilePic: this.profilePic ? { update: { url, name: image.name } } : { create: { id: uid(), name: image.name, type: "image", url } },
+            },
+            include: resale_include,
+        })
+
         this.load(data)
     }
 }

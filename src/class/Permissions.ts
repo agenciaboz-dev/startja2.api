@@ -28,6 +28,11 @@ export class ResalePermissions {
         this.editPermissions = data.editPermissions
         this.inviteUser = data.inviteUser
     }
+
+    static async new(form: ResalePermissionsForm) {
+        const data = await prisma.resalePermissions.create({ data: form })
+        return new ResalePermissions(data)
+    }
 }
 
 export class NfePermissions {
