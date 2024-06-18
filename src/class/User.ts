@@ -85,7 +85,7 @@ export class User {
     }
 
     static async newResaleManager(form: UserForm, resale_name: string) {
-        const user = await User.signup(form)
+        const user = (await User.findByEmail(form.email)) || (await User.signup(form))
 
         const token = `${user.email}:${user.password}`
         const encrypted = Buffer.from(token).toString("base64")

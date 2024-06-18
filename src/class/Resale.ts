@@ -42,7 +42,7 @@ export class Resale {
     }
 
     static async new(form: ResaleForm) {
-        const manager = (await User.findByEmail(form.manager.email)) || (await User.newResaleManager(form.manager, form.name))
+        const manager = await User.newResaleManager(form.manager, form.name)
         const permissions = await ResalePermissions.new(form.permissions)
 
         const data = await prisma.resale.create({
