@@ -146,6 +146,7 @@ model Notification {
 model Resale {
   id            String            @id
   name          String
+  created_at    String            @default("1718729812000")
   profilePicId  String?           @unique
   profilePic    Media?            @relation(name: "MediaToResale", fields: [profilePicId], references: [id], onDelete: SetNull)
   managerId     String

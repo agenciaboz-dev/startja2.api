@@ -6,6 +6,7 @@ datasource db {
 model Resale {
     id              String              @id
     name            String
+    created_at      String              @default("1718729812000")
     profilePicId    String?             @unique
     profilePic      Media?              @relation(fields: [profilePicId], references: [id], onDelete: SetNull)
 
