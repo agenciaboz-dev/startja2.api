@@ -35,6 +35,7 @@ export class ResalePermissions {
     }
 }
 
+export type NfePermissionsForm = Omit<WithoutFunctions<NfePermissions>, "id">
 export class NfePermissions {
     id: number
     emit: boolean
@@ -69,6 +70,10 @@ export class NfePermissions {
         this.history = data.history
         this.save_view = data.save_view
     }
+}
+
+export type CustomerPermissionsForm = Omit<WithoutFunctions<CustomerPermissions>, "id" | "nfePermissionsId" | "nfePermissions"> & {
+    nfePermissions: NfePermissionsForm
 }
 
 export class CustomerPermissions {

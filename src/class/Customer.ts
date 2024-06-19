@@ -1,8 +1,9 @@
 import { Prisma } from "@prisma/client"
-import { CustomerPermissions, customer_permissions_include } from "./Permissions"
+import { CustomerPermissions, CustomerPermissionsForm, customer_permissions_include } from "./Permissions"
 import { Media } from "./Media"
-import { Address } from "./Address"
+import { Address, AddressForm } from "./Address"
 import { prisma } from "../prisma"
+import { FileUpload, WithoutFunctions } from "./helpers"
 
 export const customer_include = Prisma.validator<Prisma.CustomerInclude>()({
     address: true,
@@ -13,6 +14,16 @@ export const customer_include = Prisma.validator<Prisma.CustomerInclude>()({
 type CustomerPrisma = Prisma.CustomerGetPayload<{ include: typeof customer_include }>
 
 export type FunruralType = "paycheck" | "production_value"
+
+export type CustomerForm = Omit<
+    WithoutFunctions<Customer>,
+    "id" | "certificate_file" | "address_id" | "permissionsId" | "managerId" | "profilePicId" | "profilePic" | "address" | "permissions"
+> & {
+    certificate_file?: FileUpload
+    profilePic?: FileUpload
+    address: AddressForm
+    permissions: CustomerPermissionsForm
+}
 
 export class Customer {
     id: string
