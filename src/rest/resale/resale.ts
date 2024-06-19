@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from "express"
 import { Resale, ResaleForm } from "../../class/Resale"
 import { ResaleUser, ResaleUserForm } from "../../class/ResaleUser"
 import { User } from "../../class"
+import { HandledError } from "../../class/HandledError"
 const router = express.Router()
 
 router.get("/admin", async (request: Request, response: Response) => {
@@ -70,7 +71,7 @@ router.post("/manager", async (request: Request, response: Response) => {
         response.json(user)
     } catch (error) {
         console.log(error)
-        response.status(500).send(error)
+        HandledError.handleResponse(error, response)
     }
 })
 

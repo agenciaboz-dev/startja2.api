@@ -5,6 +5,7 @@ import { prisma } from "../prisma"
 import { WithoutFunctions } from "./helpers"
 import { User, UserForm } from "."
 import { uid } from "uid"
+import { HandledError } from "./HandledError"
 
 export const resaleuser_include = Prisma.validator<Prisma.ResaleUserInclude>()({
     permissions: true,
@@ -40,7 +41,7 @@ export class ResaleUser {
         const managers = await resale.getManagers()
         const user = await User.newResaleManager(form.user, resale.name)
 
-        if (managers.find((item) => item.id == user.id)) throw "usuário já faz parte deste sistema"
+        if (managers.find((item) => item.id == user.id)) throw new HandledError("usuário já faz parte deste sistema")
 
         const permissions = await ResalePermissions.new(form.permissions)
         const data = await prisma.resaleUser.create({
